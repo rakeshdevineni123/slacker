@@ -1,29 +1,22 @@
 #!/usr/bin/python
 
 import os
+from pexpect import pxssh
 import getpass
 import paramiko
-import re
+#from paramiko import SSHClient
 from scp import SCPClient
 
 paramiko.util.log_to_file("auto_log")
 
 def ping_check(hostname, username, password):
     """Function that does a Ping Check on the hosts"""
-    """Usually the http_config only run when the ping check is successful, but in this test, we run even when unsuccessful"""
     response = os.system("ping -c 1 " + hostname)
     if response == 0:
         print hostname + " is up"
-        print "\n Copying the Index.php file remotely"
-        ssh = createSSHClient(hostname, 22, username, password)
-        scp = SCPClient(ssh.get_transport())
-        scp.put(local_path, remote_path)
         http_config(hostname, username, password)
     else:
         print hostname + " is down"
-        ssh = createSSHClient(hostname, 22, username, password)
-        scp = SCPClient(ssh.get_transport())
-        scp.put(local_path, remote_path)
         http_config(hostname, username, password)
     exit
 
@@ -73,20 +66,14 @@ def http_config(hostname, username, password):
         
     """Verify that http server is up and can spit out Hello World"""
     print "\n Verifying http server"
-    stdin, stdout, stderr = connect.exec_command('curl -sv "http://localhost"| grep -i hello')
-    list_http = stdout.readlines()
-    print 'This is output =',list_http
+    stdin, stdout, stderr = connect.exec_command('curl -sv "http://localhost"')
+    print 'This is output =',stdout.readlines()
     print 'This is error =',stderr.readlines()
-    i = 0
-    for each in list_http:
-        if re.search(r'Hello', each) != None:
-            print "\n ***HTTP server is up and running with Hello World***"
-            exit
-        else:
-            i =+1
-        if i > 0:
-            print "\n ***HTTP Server does not have Hello World***"
-
+    if "Hello," in stdout.readlines():
+        print "HTTP server is up and running with Hello World"
+    else:
+        print "HTTP server does not have Hello World #TRYAGAIN "
+    ssh.close()
 
 
 file_name = raw_input("Enter file name containing hostnames:")
@@ -103,4 +90,8 @@ except IOError:
 host_list = content.read().splitlines()
 
 for hostname in host_list:    
+    print "\n Copying the Index.php file remotely"
+    ssh = createSSHClient(hostname, 22, username, password)
+    scp = SCPClient(ssh.get_transport())
+    scp.put(local_path, remote_path)
     ping_check(hostname, username, password)
