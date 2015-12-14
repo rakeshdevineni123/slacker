@@ -14,9 +14,16 @@ def ping_check(hostname, username, password):
     response = os.system("ping -c 1 " + hostname)
     if response == 0:
         print hostname + " is up"
+        print "\n Copying the Index.php file remotely"
+        ssh = createSSHClient(hostname, 22, username, password)
+        scp = SCPClient(ssh.get_transport())
+        scp.put(local_path, remote_path)
         http_config(hostname, username, password)
     else:
         print hostname + " is down"
+        ssh = createSSHClient(hostname, 22, username, password)
+        scp = SCPClient(ssh.get_transport())
+        scp.put(local_path, remote_path)
         http_config(hostname, username, password)
     exit
 
@@ -33,19 +40,13 @@ def createSSHClient(server, port, user, password):
 def http_config(hostname, username, password):
     connect = createSSHClient(hostname, 22, username, password)
 
-    """ Installing Apache on the servers"""
+    """Installing Apache on the servers"""
     print "\n Installing Apache on the Servers "    
     stdin, stdout, stderr = connect.exec_command('apt-get -y install apache2')
     print 'This is output =',stdout.readlines()
     print 'This is error =',stderr.readlines()
-    
-    """Copying the index.php file"""
-    print "\n Copying the Index.php file remotely"
-#    ssh = createSSHClient(hostname, 22, username, password)
-    scp = SCPClient(connect.get_transport())
-    scp.put(local_path, remote_path)
 
-    """Customizing Apache on the servers"""
+    """Installing Apache on the servers"""
     print "\n Customizing Apache "    
     stdin, stdout, stderr = connect.exec_command('mv /var/www/html/index.html /var/www/html/index.html_backup')
     print 'This is output =',stdout.readlines()
@@ -57,7 +58,7 @@ def http_config(hostname, username, password):
     print 'This is output =',stdout.readlines()
     print 'This is error =',stderr.readlines()
 
-    """Customizing Apache on the servers"""
+    """Installing Apache on the servers"""
     print "\n Changing File permissions "    
     stdin, stdout, stderr = connect.exec_command('chmod 644 /var/www/html/index.php')
     print 'This is output =',stdout.readlines()
@@ -79,14 +80,13 @@ def http_config(hostname, username, password):
     i = 0
     for each in list_http:
         if re.search(r'Hello', each) != None:
-            print "\n ***HTTP server is up and running with Hello World*** \n\n\n"
+            print "\n ***HTTP server is up and running with Hello World***"
             exit
         else:
             i =+1
         if i > 0:
-            print "\n ***HTTP Server does not have Hello World*** \n\n\n"
-    
-    connect.close()
+            print "\n ***HTTP Server does not have Hello World***"
+
 
 
 file_name = raw_input("Enter file name containing hostnames:")
