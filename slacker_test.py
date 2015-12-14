@@ -22,7 +22,7 @@ def ping_check(hostname, username, password):
 
 
 def createSSHClient(server, port, user, password):
-    """This function is used to establish ssh connection to remotely copy files"""
+    """This function is used to establish ssh connection"""
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
