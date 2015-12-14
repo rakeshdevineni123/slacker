@@ -10,7 +10,7 @@ paramiko.util.log_to_file("auto_log")
 
 def ping_check(hostname, username, password):
     """Function that does a Ping Check on the hosts"""
-    """Usually the http_config only run when the ping check is successful, but in this test, we run even when unsuccessful"""
+    """Usually the http_config only runs when the ping check is successful, but in this test, we run even when unsuccessful"""
     response = os.system("ping -c 1 " + hostname)
     if response == 0:
         print hostname + " is up"
