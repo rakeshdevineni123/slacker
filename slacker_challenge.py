@@ -44,7 +44,6 @@ def http_config(hostname, username, password):
     for each in output:
         if re.search(r"/dev/xvda1", each) != None:
             print each
-#            space_cleanup(hostname, username, password)
             """Identifying the space usage culprit"""
             print "\n Identifying the space usage culprit "    
             stdin, stdout, stderr = connect.exec_command("lsof -s | grep /tmp/tmp | awk '{print $2}'")
