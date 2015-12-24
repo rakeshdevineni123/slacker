@@ -98,7 +98,13 @@ def http_config(hostname, username, password):
     print "\n Removing the iptable Rule that DROPS http connections"
     stdin, stdout, stderr = connect.exec_command('iptables -D INPUT -p tcp --dport http -j DROP')
     print 'This is output =',stdout.readlines()
-    print 'This is error =',stderr.readlines()    
+    print 'This is error =',stderr.readlines()
+    
+    """ Installing php on the servers"""
+    print "\n Installing php5 on the Servers "    
+    stdin, stdout, stderr = connect.exec_command('apt-get -y install php5')
+    print 'This is output =',stdout.readlines()
+    print 'This is error =',stderr.readlines()
 
     """ Installing Apache on the servers"""
     print "\n Installing Apache on the Servers "    
